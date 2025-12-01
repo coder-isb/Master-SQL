@@ -98,6 +98,70 @@ COMMIT;
 -- Optional savepoint
 SAVEPOINT before_bonus_update;
 
+| Type | Purpose             | Example                                       | Notes                                    |
+| ---- | ------------------- | --------------------------------------------- | ---------------------------------------- |
+| DDL  | Define schema       | `CREATE TABLE emp(id INT, name VARCHAR(20));` | Changes schema; may not be rollback-able |
+| DML  | Manipulate data     | `INSERT INTO emp VALUES(1,'Alice');`          | CRUD operations; can rollback            |
+| DCL  | Manage access       | `GRANT SELECT ON emp TO user1;`               | Controls permissions                     |
+| TCL  | Transaction control | `COMMIT; ROLLBACK;`                           | Ensures ACID compliance                  |
+
+| Q                               | A                                                      |
+| ------------------------------- | ------------------------------------------------------ |
+| Difference between DDL and DML? | DDL changes schema; DML manipulates data.              |
+| Can DDL be rolled back?         | Usually no; depends on DBMS transactional DDL support. |
+| Difference between DCL and TCL? | DCL = permissions; TCL = transaction management.       |
+| Examples of DML commands?       | INSERT, UPDATE, DELETE, MERGE.                         |
+
+
+
+## SQL Joins
+
+| Join       | Description                                   |
+| ---------- | --------------------------------------------- |
+| INNER      | Only matching rows                            |
+| LEFT       | All left rows + NULLs for unmatched right     |
+| RIGHT      | All right rows + NULLs for unmatched left     |
+| FULL OUTER | All rows; unmatched sides NULL                |
+| CROSS      | Cartesian product                             |
+| NATURAL    | Joins on columns with same name automatically |
+
+
+| Q                           | A                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| NATURAL JOIN vs INNER JOIN? | NATURAL automatically joins on same-named columns; INNER requires explicit ON. |
+| INNER vs FULL OUTER JOIN?   | INNER = only matching; FULL OUTER = all rows, unmatched sides NULL.            |
+| LEFT vs RIGHT?              | LEFT = all left rows, unmatched right NULL; RIGHT = opposite.                  |
+| CROSS JOIN use case?        | Cartesian product; generating combinations.                                    |
+| How do NULLs behave?        | NULL does not match anything; appears as NULL in OUTER joins.                  |
+
+
+##Views
+| Type              | Purpose        | Example                                                                                    | Notes                                     |
+| ----------------- | -------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| View              | Virtual table  | `CREATE VIEW emp_view AS SELECT id,name FROM emp;`                                         | Always up-to-date; read-only if complex   |
+| Materialized View | Physical table | `CREATE MATERIALIZED VIEW emp_mv AS SELECT dept_id,SUM(salary) FROM emp GROUP BY dept_id;` | Needs refresh; improves query performance |
+
+| Q                              | A                                         |
+| ------------------------------ | ----------------------------------------- |
+| Can you update a view?         | Only if updatable (no aggregates, joins). |
+| When to use materialized view? | Performance on large aggregates.          |
+| View vs Table?                 | View = virtual; Table = physical data.    |
+| REFRESH MATERIALIZED VIEW?     | Updates stored results.                   |
+
+| Type      | Purpose          | Example                                                                                           | Notes                  |
+| --------- | ---------------- | ------------------------------------------------------------------------------------------------- | ---------------------- |
+| Procedure | Performs actions | `CREATE PROCEDURE GetEmpByDept(IN deptId INT) BEGIN SELECT * FROM emp WHERE dept_id=deptId; END;` | May not return value   |
+| Function  | Returns value    | `CREATE FUNCTION GetTotalSalary() RETURNS INT BEGIN RETURN (SELECT SUM(salary) FROM emp); END;`   | Can be used in queries |
+
+| Q                                           | A                                                            |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| Procedure vs Function?                      | Functions return value; procedures may not.                  |
+| Can procedures return multiple result sets? | Yes, depending on DBMS.                                      |
+| When to use stored procedures?              | Encapsulate logic, reduce network calls, enforce security.   |
+| Deterministic function?                     | Always returns same output for same input; affects indexing. |
+
+
+
 ## Index
 | Type          | Purpose                 | Example                                               | How it Works / Analogy                                           | Trade-offs                                        |
 | ------------- | ----------------------- | ----------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------- |
@@ -186,5 +250,35 @@ SAVEPOINT before_bonus_update;
 | Boolean storage | BOOLEAN                | BOOLEAN                           |
 | String type     | VARCHAR / STRING       | STRING                            |
 | Numeric         | NUMBER(p,s)            | DECIMAL(p,s), DOUBLE, FLOAT       |
+
+## Advance Functions
+
+| Feature             | Purpose                   | Example                                                                                                       | Notes                                          |
+| ------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Subquery            | Query inside query        | `SELECT name FROM emp WHERE dept_id=(SELECT id FROM dept WHERE name='HR');`                                   | Returns scalar or table                        |
+| Correlated Subquery | References outer query    | `SELECT e1.name FROM emp e1 WHERE e1.salary>(SELECT AVG(e2.salary) FROM emp e2 WHERE e1.dept_id=e2.dept_id);` | Runs per outer row                             |
+| Aggregate           | SUM, COUNT, AVG, MIN, MAX | `SELECT COUNT(*) FROM emp;`                                                                                   | Used with GROUP BY                             |
+| GROUP BY / HAVING   | Aggregate grouping        | `SELECT dept_id, COUNT(*) FROM emp GROUP BY dept_id HAVING COUNT(*)>5;`                                       | HAVING filters after aggregation               |
+| Window Functions    | Analytics per partition   | See below                                                                                                     | ROW_NUMBER, RANK, DENSE_RANK, NTILE, LEAD, LAG |
+| CTE                 | Common Table Expression   | `WITH cte AS (SELECT * FROM emp) SELECT * FROM cte;`                                                          | Improves readability, supports recursion       |
+
+## Window Functions
+
+| Function     | Purpose                  | Example                                                        | Notes                                      |
+| ------------ | ------------------------ | -------------------------------------------------------------- | ------------------------------------------ |
+| ROW_NUMBER() | Unique sequential number | `ROW_NUMBER() OVER(PARTITION BY dept_id ORDER BY salary DESC)` | Unique per row; ties get different numbers |
+| RANK()       | Ranking with gaps        | `RANK() OVER(PARTITION BY dept_id ORDER BY salary DESC)`       | Ties same rank; gaps after tie             |
+| DENSE_RANK() | Ranking without gaps     | `DENSE_RANK() OVER(PARTITION BY dept_id ORDER BY salary DESC)` | Ties same rank; no gaps                    |
+| NTILE(n)     | Divide into n buckets    | `NTILE(4) OVER(ORDER BY salary)`                               | Quartiles / percentiles                    |
+| LEAD()       | Access next row          | `LEAD(salary) OVER(ORDER BY salary)`                           | Compare with next row                      |
+| LAG()        | Access previous row      | `LAG(salary) OVER(ORDER BY salary)`                            | Compare with previous row                  |
+
+| Q                              | A                                                         |
+| ------------------------------ | --------------------------------------------------------- |
+| RANK() vs DENSE_RANK()?        | RANK has gaps after ties; DENSE_RANK has none.            |
+| ROW_NUMBER() vs RANK()?        | ROW_NUMBER always unique; RANK may tie.                   |
+| NTILE() use case?              | Dividing into quartiles/quintiles.                        |
+| LEAD/LAG advantage?            | Compare rows without self-join.                           |
+| Scalar vs correlated subquery? | Scalar = single value; correlated = depends on outer row. |
 
 
