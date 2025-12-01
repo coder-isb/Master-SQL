@@ -98,3 +98,13 @@ COMMIT;
 -- Optional savepoint
 SAVEPOINT before_bonus_update;
 
+| Feature         | Snowflake              | Databricks / Spark SQL            |
+| --------------- | ---------------------- | --------------------------------- |
+| Semi-structured | VARIANT, OBJECT, ARRAY | MAP, ARRAY, STRUCT                |
+| Timezone-aware  | TIMESTAMP_LTZ          | TIMESTAMP with UTC by default     |
+| Auto-increment  | IDENTITY               | AUTOINCREMENT via Delta sequences |
+| Boolean storage | BOOLEAN                | BOOLEAN                           |
+| String type     | VARCHAR / STRING       | STRING                            |
+| Numeric         | NUMBER(p,s)            | DECIMAL(p,s), DOUBLE, FLOAT       |
+
+
