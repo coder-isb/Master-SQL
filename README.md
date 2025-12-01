@@ -1,5 +1,34 @@
 # Master-SQL
 
+# SQL Bible – From Beginner to Advanced
+
+A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes query types, examples, advanced topics, and best practices.
+
+---
+
+## 📑 Index
+
+1. [SQL Query Types](#sql-query-types)
+   - [DDL – Data Definition Language](#1-ddl---data-definition-language)
+   - [DML – Data Manipulation Language](#2-dml---data-manipulation-language)
+   - [DCL – Data Control Language](#3-dcl---data-control-language)
+   - [TCL – Transaction Control Language](#4-tcl---transaction-control-language)
+2. [SQL Joins](#sql-joins)
+3. [Advanced Queries](#advanced-queries)
+   - [CTE – Common Table Expressions](#cte--common-table-expressions)
+   - [Recursive CTE](#recursive-cte)
+   - [Window Functions](#window-functions)
+   - [Pivot / Unpivot](#pivot--unpivot)
+4. [Indexing & Optimization](#indexing--optimization)
+5. [Database Design Tips](#database-design-tips)
+6. [Best Practices](#best-practices)
+
+---
+
+## SQL Query Types
+
+
+
 +------------------------------------------------------+
 |                 SQL COMMANDS BIBLE                  |
 +------------------------------------------------------+
