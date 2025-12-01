@@ -11,6 +11,8 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
    - [DML – Data Manipulation Language](#2-dml---data-manipulation-language)
    - [DCL – Data Control Language](#3-dcl---data-control-language)
    - [TCL – Transaction Control Language](#4-tcl---transaction-control-language)
+   - [Q&A](#query-type-qa)
+2. [SQL Joins](#sql-key-data-types)
 2. [SQL Joins](#sql-joins)
 3. [Advanced Queries](#advanced-queries)
    - [CTE – Common Table Expressions](#cte--common-table-expressions)
@@ -25,9 +27,6 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
 
 ## SQL Query Types
 
-
-
-
 +------------------------------------------------------+
 |                 SQL COMMANDS BIBLE                  |
 +------------------------------------------------------+
@@ -40,6 +39,22 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
       | DROP    |          | UPDATE  |                              | SAVEPOINT|
       | TRUNCATE|          | DELETE  |                              |         |
       +---------+          +---------+          +---------+          +---------+
+      
+
+| Type | Purpose             | Example                                       | Notes                                    |
+| ---- | ------------------- | --------------------------------------------- | ---------------------------------------- |
+| DDL  | Define schema       | `CREATE TABLE emp(id INT, name VARCHAR(20));` | Changes schema; may not be rollback-able |
+| DML  | Manipulate data     | `INSERT INTO emp VALUES(1,'Alice');`          | CRUD operations; can rollback            |
+| DCL  | Manage access       | `GRANT SELECT ON emp TO user1;`               | Controls permissions                     |
+| TCL  | Transaction control | `COMMIT; ROLLBACK;`                           | Ensures ACID compliance                  |
+
+
+| Questions                       | Answers                                                |      
+| ------------------------------- | ------------------------------------------------------ |
+| Difference between DDL and DML? | DDL changes schema; DML manipulates data.              |
+| Can DDL be rolled back?         | Usually no; depends on DBMS transactional DDL support. |
+| Difference between DCL and TCL? | DCL = permissions; TCL = transaction management.       |
+| Examples of DML commands?       | INSERT, UPDATE, DELETE, MERGE.                         |
 
 Examples:
 ## 1. DDL – Data Definition Language
@@ -96,21 +111,25 @@ COMMIT;
 -- Optional savepoint
 SAVEPOINT before_bonus_update;
 
-| Type | Purpose             | Example                                       | Notes                                    |
-| ---- | ------------------- | --------------------------------------------- | ---------------------------------------- |
-| DDL  | Define schema       | `CREATE TABLE emp(id INT, name VARCHAR(20));` | Changes schema; may not be rollback-able |
-| DML  | Manipulate data     | `INSERT INTO emp VALUES(1,'Alice');`          | CRUD operations; can rollback            |
-| DCL  | Manage access       | `GRANT SELECT ON emp TO user1;`               | Controls permissions                     |
-| TCL  | Transaction control | `COMMIT; ROLLBACK;`                           | Ensures ACID compliance                  |
+## @uery-Type-QA
+# Truncate Delete Drop
 
-| Q                               | A                                                      |
-| ------------------------------- | ------------------------------------------------------ |
-| Difference between DDL and DML? | DDL changes schema; DML manipulates data.              |
-| Can DDL be rolled back?         | Usually no; depends on DBMS transactional DDL support. |
-| Difference between DCL and TCL? | DCL = permissions; TCL = transaction management.       |
-| Examples of DML commands?       | INSERT, UPDATE, DELETE, MERGE.                         |
+| Operation | Scope                   | Speed / Logging    | WHERE | Triggers | Rollback  | Identity Reset | Notes                                |
+| --------- | ----------------------- | ------------------ | ----- | -------- | --------- | -------------- | ------------------------------------ |
+| TRUNCATE  | Remove all rows         | Fast, minimal      | ❌     | ❌        | ❌ Usually | ✅ Yes          | Efficient, cannot delete selectively |
+| DELETE    | Remove rows selectively | Slower, row-by-row | ✅     | ✅        | ✅         | ❌              | Conditional delete; triggers fire    |
+| DROP      | Remove table/database   | Immediate          | ❌     | ❌        | ❌         | ❌              | Deletes table & schema; irreversible |
 
 
+| Questions                   | Answers                                      |
+| --------------------------- | -------------------------------------------- |
+| Can TRUNCATE fire triggers? | Usually no                                   |
+| DELETE vs DROP?             | DELETE = data only; DROP = table + data      |
+| When to use TRUNCATE?       | Remove all rows quickly; triggers not needed |
+| Rollback TRUNCATE?          | PostgreSQL yes; MySQL usually no             |
+| Locks difference?           | DELETE = row-level; TRUNCATE = table-level   |
+
+## SQL-Key-Data-Types
 
 ## SQL Joins
 
@@ -194,22 +213,7 @@ SAVEPOINT before_bonus_update;
 
 
 
-## Truncate Delete Drop
 
-| Operation | Scope                   | Speed / Logging    | WHERE | Triggers | Rollback  | Identity Reset | Notes                                |
-| --------- | ----------------------- | ------------------ | ----- | -------- | --------- | -------------- | ------------------------------------ |
-| TRUNCATE  | Remove all rows         | Fast, minimal      | ❌     | ❌        | ❌ Usually | ✅ Yes          | Efficient, cannot delete selectively |
-| DELETE    | Remove rows selectively | Slower, row-by-row | ✅     | ✅        | ✅         | ❌              | Conditional delete; triggers fire    |
-| DROP      | Remove table/database   | Immediate          | ❌     | ❌        | ❌         | ❌              | Deletes table & schema; irreversible |
-
-
-| Q                           | A                                            |
-| --------------------------- | -------------------------------------------- |
-| Can TRUNCATE fire triggers? | Usually no                                   |
-| DELETE vs DROP?             | DELETE = data only; DROP = table + data      |
-| When to use TRUNCATE?       | Remove all rows quickly; triggers not needed |
-| Rollback TRUNCATE?          | PostgreSQL yes; MySQL usually no             |
-| Locks difference?           | DELETE = row-level; TRUNCATE = table-level   |
 
 
 ## Data Types
