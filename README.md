@@ -1,10 +1,8 @@
 # Master-SQL
 
-# SQL Bible – From Beginner to Advanced
+# ZERO TO HERO – From Beginner to Advanced
 
 A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes query types, examples, advanced topics, and best practices.
-
----
 
 ## 📑 Index
 
