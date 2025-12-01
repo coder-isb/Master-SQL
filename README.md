@@ -44,7 +44,7 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
       +---------+          +---------+          +---------+          +---------+
 
 Examples:
-### 1. DDL – Data Definition Language
+## 1. DDL – Data Definition Language
 DDL (Data Definition Language) - structure/schema changes
 --------------------------------------------------------
 CREATE TABLE employees (
