@@ -1176,12 +1176,8 @@ Snowflake: cloud storage with replication/failover
 | Consistency | Database rules always valid  | Constraints + business logic                                   |
 | Isolation   | Concurrent transactions safe | MVCC / OCC; know isolation levels & anomalies                  |
 | Durability  | Committed data persists      | Logs, atomic ops, replication                                  |
-| Property    | Key Idea                     | Platform Notes                                                 |
-| ----------- | ---------------------------- | -------------------------------------------------------------- |
-| Atomicity   | All or nothing               | RDBMS: rollback; Delta: MERGE; Snowflake: transactional commit |
-| Consistency | Database rules always valid  | Constraints + business logic                                   |
-| Isolation   | Concurrent transactions safe | MVCC / OCC; know isolation levels & anomalies                  |
-| Durability  | Committed data persists      | Logs, atomic ops, replication                                  |
+
+                                |
 
 
 
