@@ -17,7 +17,7 @@ SELECT *
 FROM c
 WHERE rn = 1;
 
-
+```
 ## Q2: Deduplicate product catalog, keeping cheapest version (Walmart, Amazon Retail)
 
 
