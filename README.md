@@ -22,8 +22,14 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
 5. [ACID properties](#acid-properties)
 6. [Database Design Tips](#database-design-tips)
 8. [SQL Best Practices](#sql-best-practices)
-9. [SQL Interview LeetCode](sql-queries/READMELEETCODE.md)
-10. [System Design](sql-queries/READMESYSDESIGN.md) 
+9. 
+10. [SQL Interview LeetCode](sql-queries/READMELEETCODE.md)
+    
+12. [SQL Interview RANK](sql-queries/RANK.md)
+
+12. [SQL Interview DENSERANK](sql-queries/DENSERANK.md)
+    
+14. [System Design](sql-queries/READMESYSDESIGN.md) 
 
 
 ## SQL Query Types
