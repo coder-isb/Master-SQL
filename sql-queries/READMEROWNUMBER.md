@@ -3,7 +3,7 @@
 ## Index
 
 ### Section 1 — Deduplication (10 Questions)
-1. [Q1: Remove duplicate customers, keep earliest signup (Amazon)](#q1)
+1. [Q1: Remove duplicate customers, keep earliest signup (Amazon)](#q1-remove-duplicate-customers-keep-earliest-signup-amazon)
 2. [Q2: Deduplicate product catalog, keeping cheapest version (Walmart, Amazon Retail)](#q2-deduplicate-product-catalog-keeping-cheapest-version-walmart-amazon-retail)
 3. [Q3: Deduplicate payment attempts, keep most recent success (Stripe, PayPal)](#q3-deduplicate-payment-attempts-keep-most-recent-success-stripe-paypal)
 4. [Q4: Deduplicate transactions where same amount appears twice (Uber)](#q4-deduplicate-transactions-where-same-amount-appears-twice-uber)
@@ -76,140 +76,14 @@
 
 ---
 
-## Section 1 — Deduplication Solutions
+## Section 1 — Deduplication
 
 ## Q1: Remove duplicate customers, keep earliest signup (Amazon)
-
-## Q2: Remove duplicate customers, keep earliest signup (Amazon)
-
 ```sql
 WITH c AS (
     SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY email
-               ORDER BY signup_date
-           ) AS rn
+           ROW_NUMBER() OVER(PARTITION BY email ORDER BY signup_date) AS rn
     FROM customers
 )
-SELECT *
-FROM c
-WHERE rn = 1;
+SELECT * FROM c WHERE rn = 1;
 
-
-## Q2: Remove duplicate customers, keep earliest signup (Amazon)
-
-WITH p AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY product_name
-               ORDER BY price
-           ) AS rn
-    FROM products
-)
-SELECT *
-FROM p
-WHERE rn = 1;
-
-Q3: Deduplicate payment attempts, keep most recent success (Stripe, PayPal)
-WITH t AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY user_id, payment_method
-               ORDER BY attempt_time DESC
-           ) AS rn
-    FROM payments
-)
-SELECT *
-FROM t
-WHERE rn = 1;
-
-Q4: Deduplicate transactions where same amount appears twice (Uber)
-WITH r AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY user_id, amount
-               ORDER BY timestamp
-           ) AS rn
-    FROM transactions
-)
-SELECT *
-FROM r
-WHERE rn = 1;
-
-Q5: Deduplicate rows in a clickstream log (Meta)
-WITH cte AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY user_id, event_timestamp
-               ORDER BY event_id
-           ) AS rn
-    FROM clicks
-)
-SELECT *
-FROM cte
-WHERE rn = 1;
-
-Q6: Keep latest price record for each product (Amazon Pricing)
-WITH p AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY product_id
-               ORDER BY updated_at DESC
-           ) AS rn
-    FROM product_price
-)
-SELECT *
-FROM p
-WHERE rn = 1;
-
-Q7: Deduplicate addresses, keep first verified (Google Maps)
-WITH a AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY address_hash
-               ORDER BY verified_at
-           ) AS rn
-    FROM addresses
-)
-SELECT *
-FROM a
-WHERE rn = 1;
-
-Q8: Keep last job title of each employee before termination (LinkedIn)
-WITH j AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY emp_id
-               ORDER BY updated_at DESC
-           ) AS rn
-    FROM job_history
-)
-SELECT *
-FROM j
-WHERE rn = 1;
-
-Q9: Deduplicate survey responses, keep the latest per user (Google UX Research)
-WITH s AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY user_id
-               ORDER BY submitted_at DESC
-           ) AS rn
-    FROM survey
-)
-SELECT *
-FROM s
-WHERE rn = 1;
-
-Q10: Deduplicate device logs, keep newest record (Apple)
-WITH d AS (
-    SELECT *,
-           ROW_NUMBER() OVER(
-               PARTITION BY device_id
-               ORDER BY log_time DESC
-           ) AS rn
-    FROM device_logs
-)
-SELECT *
-FROM d
-WHERE rn = 1;
