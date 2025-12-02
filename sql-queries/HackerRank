@@ -44,3 +44,129 @@
 ### 1. Get Employee Name
 ```sql
 SELECT name FROM employee ORDER BY name;
+
+2. Get Employee Salary
+SELECT name FROM employee WHERE salary > 2000 AND months < 10 ORDER BY employee_id;
+
+3. Query Name of Students with Marks > 75
+SELECT name FROM students WHERE marks > 75 ORDER BY RIGHT(name,3), id ASC;
+
+4. WEATHER-3: List CITY names with even ID
+SELECT DISTINCT city FROM station WHERE ID % 2 = 0;
+
+5. WEATHER-4: Difference between total and distinct CITY entries
+SELECT COUNT(city) - COUNT(DISTINCT city) FROM station;
+
+6. WEATHER-5: Two cities with shortest and longest names
+SELECT city, LENGTH(city) 
+FROM station 
+ORDER BY LENGTH(city) ASC, city ASC 
+LIMIT 1;
+
+SELECT DISTINCT city, LENGTH(city) 
+FROM station 
+ORDER BY LENGTH(city) DESC, city ASC 
+LIMIT 1;
+
+7. WEATHER-6: CITY names starting with vowels
+SELECT DISTINCT city 
+FROM station 
+WHERE LEFT(city,1) IN ('a','e','i','o','u');
+
+8. WEATHER-7: CITY names ending with vowels
+SELECT DISTINCT city 
+FROM station 
+WHERE RIGHT(city,1) IN ('a','e','i','o','u');
+
+9. BINARY TREE: Root, Inner, Leaf
+SELECT BT.N,
+CASE
+    WHEN BT.P IS NULL THEN 'Root'
+    WHEN EXISTS (SELECT B.P FROM BST B WHERE B.P = BT.N) THEN 'Inner'
+    ELSE 'Leaf'
+END
+FROM BST AS BT 
+ORDER BY BT.N;
+
+10. Founder > LM > SM > M > Emp: Count employees per company
+SELECT e.company_code,
+       MAX(founder),
+       COUNT(DISTINCT lead_manager_code),
+       COUNT(DISTINCT senior_manager_code),
+       COUNT(DISTINCT manager_code),
+       COUNT(DISTINCT employee_code)
+FROM Employee e
+LEFT JOIN Company c ON e.company_code = c.company_code
+GROUP BY e.company_code
+ORDER BY e.company_code;
+
+11. TRIANGLE TYPES
+SELECT CASE
+    WHEN A + B <= C OR A + C <= B OR B + C <= A THEN 'Not A Triangle'
+    WHEN A = B AND B = C THEN 'Equilateral'
+    WHEN A = B OR A = C OR B = C THEN 'Isosceles'
+    ELSE 'Scalene'
+END AS triangle_sides
+FROM TRIANGLES;
+
+12. PAD CONCAT: Name + Occupation abbreviation
+SELECT CONCAT(name,'(',SUBSTRING(Occupation,1,1),')') AS Name 
+FROM occupations 
+ORDER BY Name;
+
+SELECT CONCAT('There are a total of ', COUNT(occupation),' ', LOWER(occupation),'s.') AS totals
+FROM occupations
+GROUP BY occupation
+ORDER BY totals;
+
+13. OCCUPATION Pivot
+WITH doctor AS (
+    SELECT name, ROW_NUMBER() OVER(ORDER BY name) AS rn
+    FROM OCCUPATIONS
+    WHERE occupation LIKE 'Doctor'
+),
+professor AS (
+    SELECT name, ROW_NUMBER() OVER(ORDER BY name) AS rn
+    FROM OCCUPATIONS
+    WHERE occupation LIKE 'Professor'
+)
+...
+SELECT d.name, p.name, s.name, a.name
+FROM professor p
+LEFT JOIN doctor d ON d.rn = p.rn
+LEFT JOIN singer s ON s.rn = p.rn
+LEFT JOIN actor a ON a.rn = p.rn;
+
+
+Alternate:
+
+USING PIVOT SELECT Doctor, Professor, Singer, Actor FROM (
+    SELECT ROW_NUMBER() OVER (PARTITION BY occupation ORDER BY name) as rn, name, occupation 
+    FROM occupations
+) 
+PIVOT (MAX(name) FOR occupation IN ('Doctor' as Doctor,'Professor' as Professor,'Singer' as Singer,'Actor' as Actor))
+ORDER BY rn;
+
+14. COUNT: Number of cities with population > 100000
+SELECT COUNT(name) FROM city WHERE population > 100000;
+
+15. SUM: Total population in California
+SELECT SUM(population) FROM city WHERE district ='California';
+
+16. AVG: Average population in California
+SELECT AVG(population) FROM city WHERE district = 'California';
+
+17. Round average population
+SELECT ROUND(AVG(population)) FROM city;
+
+18. Population Density Difference
+SELECT MAX(population)-MIN(population) AS diff FROM city;
+
+19. Blunder-Miscalculation Ceil
+SELECT CEIL(AVG(salary) - AVG(REPLACE(salary, '0', ''))) FROM employees;
+
+20. Max earnings (salary * months)
+SELECT salary*months, COUNT(*) 
+FROM employee 
+WHERE salary*months=(SELECT MAX(salary*months) FROM employee)
+GROUP BY salary*months;
