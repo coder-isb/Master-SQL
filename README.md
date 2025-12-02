@@ -223,13 +223,13 @@ SAVEPOINT before_bonus_update;
 ## Indexing
 Indexes speed queries like a book index. Clustered (reorders table), non-clustered (separate). Privileges: GRANT/REVOKE for access. SQL Injection: Malicious input exploiting queries.
 
-Best Practices:
+**Best Practices:**
 
 Index frequently queried columns, but not all—updates slow them.
 Use prepared statements to prevent injection.
 Least privilege principle for users.
 
-Examples
+**Examples**
 Index:
 
 CREATE INDEX idx_name ON customers (name);
@@ -284,7 +284,6 @@ CREATE INDEX idx_name ON customers (name);
 | Window Functions    | Analytics per partition   | See below                                                                                                     | ROW_NUMBER, RANK, DENSE_RANK, NTILE, LEAD, LAG |
 | CTE                 | Common Table Expression   | `WITH cte AS (SELECT * FROM emp) SELECT * FROM cte;`                                                          | Improves readability, supports recursion       |
 
-Advanced Queries – Interview Ready
 # 1. CTE – Common Table Expressions
 
 **WHAT:**
@@ -298,7 +297,6 @@ WITH active_emps AS (
     WHERE status='active'
 )
 SELECT * FROM active_emps;
-
 
 **Use cases:** Employee hierarchy, top-N per department, ETL intermediate transformations.
 
@@ -324,7 +322,7 @@ Recursive CTEs for tree traversal
 
 Supported in most SQL engines
 
-# High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 CTE vs Subquery vs Temp Table – when to use which?
 Solution:
@@ -343,10 +341,10 @@ Solution: Use MAXRECURSION or depth limit; track path to detect cycles
 
 # 2. Recursive CTE
 
-WHAT:
+**WHAT:**
 CTE referencing itself to traverse unknown-depth hierarchies or graphs.
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 WITH RECURSIVE r AS (
     SELECT id, parent_id, 0 AS level FROM employees WHERE parent_id IS NULL
@@ -357,28 +355,27 @@ WITH RECURSIVE r AS (
 )
 SELECT * FROM r;
 
+**Use cases:** Employee hierarchy, BOM expansion, folder structures, project task dependencies
 
-Use cases: Employee hierarchy, BOM expansion, folder structures, project task dependencies
-
-WHEN:
+**WHEN:**
 
 Unknown-depth hierarchies
 
 Multi-level aggregation
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Pros: Elegant for hierarchy queries
 
 Cons: Risk of infinite loops, deep recursion slow, limited by engine max depth
 
-Must-Know:
+**Must-Know:**
 
 Add a path column to detect cycles
 
 Can combine with ranking functions for hierarchical order
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 Detect cycles in hierarchy?
 Solution: Track path in recursion, filter duplicates
@@ -389,33 +386,33 @@ Solution: Recursive CTE: declarative, portable; Loop: procedural, verbose
 Performance tips for recursive queries?
 Solution: Index parent-child columns, limit recursion depth
 
-3. Window Functions
+**3. Window Functions**
 
-WHAT:
+**WHAT:**
 Compute metrics over rows related to the current row without collapsing rows.
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 ROW_NUMBER() OVER(PARTITION BY department ORDER BY performance DESC) AS rank
 SUM(salary) OVER(PARTITION BY department) AS dept_total_salary
 LAG(salary) OVER(PARTITION BY department ORDER BY join_date) AS prev_salary
 
 
-Use cases: Top-N per group, running totals, lead/lag, sessionization, percentiles
+**Use cases:** Top-N per group, running totals, lead/lag, sessionization, percentiles
 
-WHEN:
+**WHEN:**
 
 Analytics without losing row-level detail
 
 Ranking and cumulative metrics
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Pros: Powerful, flexible
 
 Cons: Sorting large datasets is resource-intensive
 
-Must-Know:
+**Must-Know:**
 
 ROW_NUMBER vs RANK vs DENSE_RANK
 
@@ -423,7 +420,7 @@ ROWS vs RANGE frame
 
 Combine with PARTITION BY and ORDER BY for granular control
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 Difference between ROW_NUMBER, RANK, DENSE_RANK?
 Solution:
@@ -440,12 +437,12 @@ Solution: Compare current row timestamp with previous row using LAG, start new s
 Performance tips?
 Solution: Index ORDER BY columns, minimize large frame calculations
 
-4. Pivot / Unpivot
+# 4. Pivot / Unpivot
 
-WHAT:
+**WHAT:**
 Pivot: convert rows → columns; Unpivot: columns → rows.
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 -- Pivot
 SELECT product,
@@ -459,26 +456,25 @@ SELECT product, month, amount
 FROM sales_table
 UNPIVOT (amount FOR month IN (Jan, Feb, Mar)) u;
 
-
 Use cases: Sales/Revenue reports, KPI dashboards, wide-to-long data transformation
 
-WHEN:
+**WHEN:**
 
 Reporting, dashboard aggregation
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Pros: Structured reporting, easy to read
 
 Cons: Memory heavy, dynamic pivot requires dynamic SQL
 
-Must-Know:
+**Must-Know:**
 
 Conditional aggregation can replace pivot
 
 Use for small fixed sets of pivot columns
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 Pivot vs conditional aggregation?
 Solution: Pivot is syntactic sugar; both produce same results
@@ -489,12 +485,12 @@ Solution: Build SQL dynamically using procedural code (EXEC in SQL Server, PL/pg
 Performance tips?
 Solution: Limit pivot columns, avoid wide tables, consider pre-aggregated data
 
-5. CASE / SWITCH Logic
+# 5. CASE / SWITCH Logic
 
-WHAT:
+**WHAT:**
 Conditional expression to implement IF/ELSE logic in SQL.
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 CASE
   WHEN salary > 100000 THEN 'High'
@@ -502,26 +498,25 @@ CASE
   ELSE 'Low'
 END AS salary_band
 
+**Use cases:** Salary bands, KPI classification, conditional metrics, data cleaning
 
-Use cases: Salary bands, KPI classification, conditional metrics, data cleaning
-
-WHEN:
+**WHEN:**
 
 Categorization, conditional aggregation
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Pros: Flexible, widely used
 
 Cons: Can prevent index usage in WHERE
 
-Must-Know:
+**Must-Know:**
 
 NULL handling
 
 Nested CASE statements
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 NULL handling in CASE?
 Solution: Use WHEN col IS NULL explicitly
@@ -532,12 +527,12 @@ Solution:
 SELECT SUM(CASE WHEN status='Active' THEN 1 ELSE 0 END) AS active_count
 FROM employees;
 
-6. Subqueries / Correlated Subqueries
+# 6. Subqueries / Correlated Subqueries
 
-WHAT:
+**WHAT:**
 Nested queries inside another query. Correlated subqueries reference outer query columns.
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 -- Simple
 SELECT name FROM employees WHERE department_id IN (
@@ -551,21 +546,21 @@ WHERE e.salary > (
 );
 
 
-Use cases: Top performers, filtering by aggregated metrics, validation
+**Use cases:** Top performers, filtering by aggregated metrics, validation
 
-WHEN:
+**WHEN:**
 
 Row-level dependent filters, dynamic thresholds
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Correlated subqueries expensive; often replaced by JOIN/CTE
 
-Must-Know:
+**Must-Know:**
 
 EXISTS vs IN vs ANY/ALL
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 Correlated vs uncorrelated subquery?
 Solution: Correlated executes per row; uncorrelated executes once
@@ -576,28 +571,27 @@ Solution: Replace with JOIN or CTE; ensure indexes
 EXISTS vs IN?
 Solution: EXISTS often faster for correlated checks; IN can be slower with large sets
 
-7. Aggregate Functions
+# 7. Aggregate Functions
 
-WHAT:
+**WHAT:**
 SUM, COUNT, AVG, MIN, MAX — summarize data across rows
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 SELECT COUNT(*) AS emp_count, AVG(salary) AS avg_salary FROM employees;
 SELECT department_id, SUM(salary) AS total_salary FROM employees GROUP BY department_id;
 
+**Use cases:** Department metrics, revenue totals, operational reports
 
-Use cases: Department metrics, revenue totals, operational reports
-
-WHEN:
+**WHEN:**
 
 Reporting, dashboard metrics, ETL aggregation
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Aggregate collapses rows; use window functions for row-level detail
 
-Must-Know:
+**Must-Know:**
 
 COUNT(*) vs COUNT(col)
 
@@ -605,7 +599,7 @@ NULL handling
 
 AVG/SUM skips NULL
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 COUNT(*) vs COUNT(col)?
 Solution: COUNT(*) counts all rows; COUNT(col) counts non-NULL only
@@ -613,36 +607,35 @@ Solution: COUNT(*) counts all rows; COUNT(col) counts non-NULL only
 Aggregate vs window functions?
 Solution: Aggregate collapses rows; window preserves row-level
 
-8. GROUP BY / HAVING
+# 8. GROUP BY / HAVING
 
-WHAT:
+**WHAT:**
 GROUP BY aggregates rows; HAVING filters aggregated results
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 SELECT department_id, COUNT(*) AS emp_count
 FROM employees
 GROUP BY department_id
 HAVING COUNT(*) > 5;
 
+**Use cases:** Department metrics, KPI filtering, dashboards
 
-Use cases: Department metrics, KPI filtering, dashboards
-
-WHEN:
+**WHEN:**
 
 Summarized reporting, pre-aggregation
 
-TRADEOFFS:
+**TRADEOFFS:**
 
 Mixing non-aggregated columns causes errors
 
 Large datasets → performance cost
 
-Must-Know:
+**Must-Know:**
 
 WHERE filters rows before aggregation; HAVING filters after aggregation
 
-High-Value Interview Q&A
+**High-Value Interview Q&A**
 
 WHERE vs HAVING?
 Solution: WHERE → row-level; HAVING → aggregated group-level
