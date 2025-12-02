@@ -1,1 +1,46 @@
 
+# HackerRank SQL Queries Cheat Sheet (1-40)
+
+## Index
+
+1. [Get Employee Name](#1-get-employee-name)  
+2. [Get Employee Salary](#2-get-employee-salary)  
+3. [Query Name of Students with Marks > 75](#3-query-name-of-students-with-marks--75)  
+4. [WEATHER-3: List CITY names with even ID](#4-weather-3-list-city-names-with-even-id)  
+5. [WEATHER-4: Difference between total and distinct CITY entries](#5-weather-4-difference-between-total-and-distinct-city-entries)  
+6. [WEATHER-5: Two cities with shortest and longest names](#6-weather-5-two-cities-with-shortest-and-longest-names)  
+7. [WEATHER-6: CITY names starting with vowels](#7-weather-6-city-names-starting-with-vowels)  
+8. [WEATHER-7: CITY names ending with vowels](#8-weather-7-city-names-ending-with-vowels)  
+9. [BINARY TREE: Root, Inner, Leaf](#9-binary-tree-root-inner-leaf)  
+10. [Founder > LM > SM > M > Emp: Count employees per company](#10-founder--lm--sm--m--emp-count-employees-per-company)  
+11. [TRIANGLE TYPES](#11-triangle-types)  
+12. [PAD CONCAT: Name + Occupation abbreviation](#12-pad-concat-name--occupation-abbreviation)  
+13. [OCCUPATION Pivot](#13-occupation-pivot)  
+14. [COUNT: Number of cities with population > 100000](#14-count-number-of-cities-with-population--100000)  
+15. [SUM: Total population in California](#15-sum-total-population-in-california)  
+16. [AVG: Average population in California](#16-avg-average-population-in-california)  
+17. [Round average population](#17-round-average-population)  
+18. [Population Density Difference](#18-population-density-difference)  
+19. [Blunder-Miscalculation Ceil](#19-blunder-miscalculation-ceil)  
+20. [Max earnings (salary * months)](#20-max-earnings-salary--months)  
+21. [Round LAT_N in STATION](#21-round-lat_n-in-station)  
+22. [Manhattan Distance](#22-manhattan-distance)  
+23. [Euclidean Distance](#23-euclidean-distance)  
+24. [Asian Population JOIN](#24-asian-population-join)  
+25. [African Cities JOIN](#25-african-cities-join)  
+26. [Average population per continent](#26-average-population-per-continent)  
+27. [Student Report](#27-student-report)  
+28. [Top Competitors](#28-top-competitors)  
+29. [Challenges](#29-challenges)  
+30. [Contest Leaderboard](#30-contest-leaderboard)  
+31. [SQL Project Planning](#31-sql-project-planning)  
+32. [Symmetric Pairs](#32-symmetric-pairs)  
+33. [Print *](#33-print-)  
+
+---
+
+## Solutions
+
+### 1. Get Employee Name
+```sql
+SELECT name FROM employee ORDER BY name;
