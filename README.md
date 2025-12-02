@@ -24,7 +24,7 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
    
 8. [SQL Best Practices](#sql-best-practices)
    
-9. [SQL Interview](sql-queries/READMESQL.md)
+9. [SQL Interview LeetCode](sql-queries/READMELEETCODE.md)
 10. [System Design](sql-queries/READMESYSDESIGN.md) 
 ---
 
