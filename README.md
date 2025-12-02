@@ -285,12 +285,12 @@ CREATE INDEX idx_name ON customers (name);
 | CTE                 | Common Table Expression   | `WITH cte AS (SELECT * FROM emp) SELECT * FROM cte;`                                                          | Improves readability, supports recursion       |
 
 Advanced Queries – Interview Ready
-1. CTE – Common Table Expressions
+# 1. CTE – Common Table Expressions
 
-WHAT:
+**WHAT:**
 A named temporary result set for modular, readable queries. Supports recursion for hierarchical data.
 
-HOW (Common Query / Use Case):
+**HOW (Common Query / Use Case):**
 
 WITH active_emps AS (
     SELECT employee_id, department_id, salary
@@ -300,9 +300,9 @@ WITH active_emps AS (
 SELECT * FROM active_emps;
 
 
-Use cases: Employee hierarchy, top-N per department, ETL intermediate transformations.
+**Use cases:** Employee hierarchy, top-N per department, ETL intermediate transformations.
 
-WHEN:
+**WHEN:**
 
 Complex multi-step queries
 
@@ -310,13 +310,13 @@ Reusing intermediate results
 
 Recursive queries (hierarchies, graphs)
 
-TRADEOFFS:
+**TRADEOFFS:**
 
-Pros: Readable, modular, supports recursion
+**Pros:** Readable, modular, supports recursion
 
-Cons: Non-materialized CTEs recompute on multiple references → slower for large datasets
+**Cons:** Non-materialized CTEs recompute on multiple references → slower for large datasets
 
-Must-Know:
+**Must-Know:**
 
 Chain multiple CTEs
 
@@ -324,7 +324,7 @@ Recursive CTEs for tree traversal
 
 Supported in most SQL engines
 
-High-Value Interview Q&A
+# High-Value Interview Q&A
 
 CTE vs Subquery vs Temp Table – when to use which?
 Solution:
@@ -341,7 +341,7 @@ Solution: Multiple references to non-materialized CTE → recomputation
 Recursive CTE infinite loop prevention?
 Solution: Use MAXRECURSION or depth limit; track path to detect cycles
 
-2. Recursive CTE
+# 2. Recursive CTE
 
 WHAT:
 CTE referencing itself to traverse unknown-depth hierarchies or graphs.
