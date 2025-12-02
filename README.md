@@ -14,6 +14,8 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
    - [Q&A](#query-type-q&a)
 2. [Data Types](#sql-key-data-types)
 3. [SQL IMP Objects](#sql-other-imp-objects)
+4. [SQL KEYS](#keys-sql)
+5. [SQL KEYS CLOUD](#keys-databricks-&-snowflake)
 2. [SQL Joins](#sql-joins)
 3. [Advanced Queries](#advanced-queries)
    - [CTE – Common Table Expressions](#cte--common-table-expressions)
@@ -168,6 +170,399 @@ SAVEPOINT before_bonus_update;
 | Boolean storage | BOOLEAN                | BOOLEAN                           |
 | String type     | VARCHAR / STRING       | STRING                            |
 | Numeric         | NUMBER(p,s)            | DECIMAL(p,s), DOUBLE, FLOAT       |
+
+## Keys in SQL
+
+# 1. Primary Key
+
+**WHAT:**
+Uniquely identifies each row in a table; cannot contain NULL. Usually implemented as clustered index (SQL Server) or unique constraint.
+
+**HOW (Common Query / Use Case):**
+
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    department_id INT
+);
+
+**Use cases:** Row identification, relationships with foreign keys
+
+**WHEN:**
+
+Every table should have a primary key for data integrity
+
+**TRADEOFFS:**
+
+Pros: Enforces uniqueness, improves lookup performance
+
+Cons: Cannot have NULL; clustered PK may affect insert performance
+
+**Must-Know:**
+
+Auto-increment columns often used for surrogate PK
+
+Only one PK per table
+
+**High-Value Interview Q&A**
+
+Difference between natural key and surrogate key?
+Solution:
+
+Natural key: meaningful column(s) (e.g., email)
+
+Surrogate key: system-generated (e.g., IDENTITY/serial)
+
+Can PK be composite?
+Solution: Yes, multiple columns can form a composite PK
+
+# 2. Foreign Key
+
+**WHAT:**
+References primary key in another table; ensures referential integrity.
+
+**HOW (Common Query / Use Case):**
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    employee_id INT,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+**Use cases**: Maintain relationships between tables
+
+**WHEN:**
+
+For enforcing integrity across related tables
+
+**TRADEOFFS:**
+
+Pros: Prevents orphan records, enforces consistency
+
+Cons: Insert/update/delete performance overhead
+
+**Must-Know:**
+
+Can cascade updates/deletes (ON DELETE CASCADE)
+
+Supports single or composite references
+
+**High-Value Interview Q&A**
+
+Difference between PK and FK?
+Solution: PK: unique row identifier; FK: links to PK in another table
+
+Can FK reference non-PK column?
+Solution: Yes, but must reference a UNIQUE key
+
+Cascading options in FK?
+Solution: ON DELETE/UPDATE CASCADE, SET NULL, SET DEFAULT, NO ACTION
+
+# 3. Unique Key
+
+**WHAT:**
+Ensures values in a column or set of columns are unique; can accept NULL (except in some DBs like SQL Server, one NULL treated as unique).
+
+**HOW (Common Query / Use Case):**
+
+CREATE TABLE employees (
+    email VARCHAR(100) UNIQUE
+);
+
+**Use cases:** Email, SSN, or any business-unique field
+
+**WHEN:**
+
+To enforce business-level uniqueness apart from PK
+
+**TRADEOFFS:**
+
+Pros: Enforces uniqueness without being primary key
+
+Cons: Extra index may affect insert performance
+
+**Must-Know:**
+
+Can have multiple unique constraints per table
+
+Can combine columns to form composite unique key
+
+**High-Value Interview Q&A**
+
+Difference between PK and Unique Key?
+Solution: PK: cannot be NULL, only one per table, usually clustered; Unique: can have multiple per table, allows NULL
+
+Composite Unique Key example?
+Solution:
+
+UNIQUE (first_name, last_name)
+
+# 4. Candidate Key
+
+**WHAT:**
+Any column or combination that can uniquely identify rows. PK is chosen from candidate keys.
+
+**HOW (Common Query / Use Case):**
+
+Usually defined conceptually; implement as UNIQUE or PK in SQL
+
+**WHEN:**
+
+During database design to identify potential primary keys
+
+**TRADEOFFS:**
+
+Pros: Helps choose PK
+
+Cons: Conceptual; not directly enforced unless implemented
+
+**Must-Know:**
+
+A table can have multiple candidate keys; one becomes PK
+
+**High-Value Interview Q&A**
+
+Candidate key vs PK vs Unique key?
+Solution:
+
+Candidate key: potential unique identifier
+
+PK: chosen candidate key
+
+Unique key: enforces uniqueness but not PK
+
+# 5. Alternate Key
+
+**WHAT:**
+Candidate key not chosen as primary key; implemented as unique constraint.
+
+**HOW (Common Query / Use Case):**
+
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    email VARCHAR(100) UNIQUE
+);
+
+PK: employee_id, Alternate Key: email
+
+**WHEN:**
+
+Maintain uniqueness for secondary identifiers
+
+**TRADEOFFS:**
+
+Pros: Enforces additional uniqueness
+
+Cons: Extra index overhead
+
+**Must-Know:**
+
+Each alternate key is implemented as UNIQUE constraint
+
+**High-Value Interview Q&A**
+
+Alternate key vs Unique key?
+Solution: Alternate key is a candidate key not chosen as PK; implemented via UNIQUE
+
+# 6. Super Key
+
+**WHAT:**
+Any set of columns that uniquely identifies a row (may contain extra columns).
+
+**HOW (Common Query / Use Case):**
+
+Conceptual; includes PK + any additional columns
+
+**WHEN:**
+
+Used conceptually during normalization and design
+
+**TRADEOFFS:**
+
+Pros: Ensures uniqueness
+
+Cons: May include redundant columns
+
+**Must-Know:**
+
+PK is minimal super key
+
+High-Value Interview Q&A
+
+Super Key vs Candidate Key?
+Solution: Candidate key = minimal super key (no extra columns)
+
+# 7. Composite / Compound Key
+
+**WHAT:**
+Primary key or unique key formed from multiple columns.
+
+**HOW (Common Query / Use Case):**
+
+CREATE TABLE enrollment (
+    student_id INT,
+    course_id INT,
+    PRIMARY KEY (student_id, course_id)
+);
+
+**Use cases:** Many-to-many relationships
+
+**WHEN:**
+
+When a single column is insufficient for uniqueness
+
+**TRADEOFFS:**
+
+Pros: Enforces row uniqueness across multiple attributes
+
+Cons: More complex joins, indexing considerations
+
+**Must-Know:**
+
+Can be PK or UNIQUE
+
+Used frequently in junction tables
+
+**High-Value Interview Q&A**
+
+Difference between composite and single-column PK?
+Solution: Composite PK combines columns for uniqueness; single-column PK uses only one column
+
+| Key Type  | Can be NULL | Unique? | Number per Table | Notes                               |
+| --------- | ----------- | ------- | ---------------- | ----------------------------------- |
+| Primary   | No          | Yes     | 1                | Clustered by default                |
+| Foreign   | Yes         | No      | Multiple         | Enforces referential integrity      |
+| Unique    | Yes         | Yes     | Multiple         | Allows NULL (DB-specific)           |
+| Candidate | Yes         | Yes     | Multiple         | PK chosen from candidate keys       |
+| Alternate | Yes         | Yes     | Multiple         | Candidate key not chosen as PK      |
+| Super     | Yes         | Yes     | Conceptual       | May have extra columns              |
+| Composite | Depends     | Yes     | Multiple         | PK or Unique using multiple columns |
+
+## Keys Databricks & Snowflake
+
+# 1. Databricks / Delta Lake Keys
+
+**WHAT:**
+
+Databricks (Delta Lake) does not enforce primary or foreign key constraints at the storage level.
+
+Constraints can be declared for documentation/optimization, but enforcement is not guaranteed.
+
+**HOW (Common Usage / Workarounds):**
+
+-- Declare a primary key (informational only)
+CREATE TABLE employees (
+  employee_id INT NOT NULL,
+  name STRING,
+  PRIMARY KEY (employee_id)
+) USING DELTA;
+
+To enforce uniqueness: Use MERGE INTO or deduplicate using ROW_NUMBER()
+
+Foreign key references must be handled via application logic or join validation
+
+**WHEN:**
+
+Large distributed tables; enforcement at write time is expensive
+
+Ensuring uniqueness or referential integrity via ETL pipelines
+
+**TRADEOFFS:**
+
+Pros: Faster writes, scalable distributed architecture
+
+Cons: No built-in FK enforcement; user must handle data integrity
+
+**Must-Know:**
+
+Delta Lake supports NOT NULL constraints
+
+Uniqueness and referential integrity must be enforced programmatically
+
+Optimizations: Z-ordering, partitioning for fast lookups
+
+**High-Value Interview Q&A**
+
+Does Databricks support primary key enforcement?
+Solution: No, PK is declarative only. Use deduplication or MERGE for enforcement.
+
+How to enforce foreign key constraints in Delta Lake?
+Solution: Application-level enforcement or use SQL joins to validate data before insert.
+
+What about uniqueness constraints?
+Solution: Delta Lake supports NOT NULL; UNIQUE constraints are not enforced natively.
+
+# 2. Snowflake Keys
+
+**WHAT:**
+
+Snowflake allows declaration of primary, foreign, and unique keys but does not enforce them.
+
+Keys are mainly informational for query optimization, documentation, and DDL semantics.
+
+**HOW (Common Usage / Example):**
+
+CREATE TABLE employees (
+  employee_id INT PRIMARY KEY,
+  email VARCHAR(100) UNIQUE,
+  department_id INT REFERENCES departments(department_id)
+);
+
+Snowflake does not prevent duplicate values in PK or Unique columns
+
+Foreign key constraints do not enforce referential integrity
+
+**WHEN:**
+
+Declarative constraints help maintain schema semantics
+
+Enforcement handled at ETL or application level
+
+**TRADEOFFS:**
+
+Pros: Lightweight; no runtime constraint overhead
+
+Cons: Data integrity must be enforced outside Snowflake
+
+**Must-Know:**
+
+Use clustered keys or materialized views to optimize queries instead of relying on constraints
+
+PK/FK used for metadata, documentation, and query planning only
+
+**High-Value Interview Q&A**
+
+Does Snowflake enforce primary or foreign keys?
+Solution: No, PK/FK are informational only.
+
+How to ensure uniqueness in Snowflake?
+Solution: Use SELECT DISTINCT or deduplication during ETL / MERGE operations
+
+Why declare keys if not enforced?
+Solution: Helps documentation, understanding schema relationships, query optimizer may leverage metadata
+
+# 3. Comparative Notes – Keys in Databricks vs Snowflake
+
+| Feature              | Databricks / Delta Lake         | Snowflake                                 |
+| -------------------- | ------------------------------- | ----------------------------------------- |
+| Primary Key          | Declarative only, not enforced  | Declarative only, not enforced            |
+| Foreign Key          | Not enforced; use ETL/app logic | Not enforced; metadata only               |
+| Unique Key           | Not enforced; use deduplication | Not enforced; use ETL/app logic           |
+| NOT NULL             | Enforced                        | Enforced                                  |
+| Performance impact   | None at write time              | None at write time                        |
+| Use case             | Distributed tables, big data    | Cloud data warehouse, analytics pipelines |
+| Enforcement strategy | Application / ETL validation    | Application / ETL validation              |
+
+
+**Key Takeaways for Interviews:**
+
+Databricks: Keys are mostly for documentation; integrity must be handled programmatically.
+
+Snowflake: Keys are declarative; no enforcement; rely on ETL or business logic.
+
+NOT NULL is the only truly enforced constraint on both platforms.
+
+Always emphasize data integrity via ETL or merge operations during interviews.
 
 
 ## SQL Other Important Objects
