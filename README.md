@@ -15,7 +15,7 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
 2. [Data Types](#sql-key-data-types)
 3. [SQL IMP Objects](#sql-other-imp-objects)
 4. [SQL KEYS](#keys-in-sql)
-5. [SQL KEYS CLOUD](#keys-databricks-&-snowflake)
+5. [SQL KEYS Databricks Snowflake](#keys-databricks-&-snowflake)
 2. [SQL Joins](#sql-joins)
 3. [Advanced Queries](#advanced-queries)
    - [CTE – Common Table Expressions](#cte--common-table-expressions)
@@ -23,8 +23,9 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
    - [Window Functions](#window-functions)
    - [Pivot / Unpivot](#pivot--unpivot)
 4. [Indexing & Optimization](#indexing--optimization)
-5. [Database Design Tips](#database-design-tips)
-6. [Best Practices](#best-practices)
+5. 
+6. [Database Design Tips](#database-design-tips)
+7. [Best Practices](#best-practices)
 
 ---
 
@@ -1059,5 +1060,128 @@ Solution: Index grouping columns, pre-aggregate if possible
 | NTILE() use case?              | Dividing into quartiles/quintiles.                        |
 | LEAD/LAG advantage?            | Compare rows without self-join.                           |
 | Scalar vs correlated subquery? | Scalar = single value; correlated = depends on outer row. |
+
+## ACID
+ACID Properties – SQL & Modern Platforms (Databricks/Snowflake)
+1. Atomicity
+
+What:
+
+Transaction is all-or-nothing; either all operations succeed or none.
+
+How / Example:
+
+BEGIN TRANSACTION;
+UPDATE accounts SET balance = balance - 100 WHERE account_id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE account_id = 2;
+COMMIT;
+
+
+If any step fails → ROLLBACK occurs.
+
+When: Multi-step operations like bank transfers, multi-table updates.
+
+Tradeoffs: Logging overhead, slightly slower writes.
+
+2. Consistency
+
+What:
+
+Database moves from one valid state to another, obeying all constraints, rules, and business logic.
+
+Simple Example:
+
+Total money in bank before and after a transfer remains constant.
+
+Inventory stock never goes negative.
+
+When: Always, especially in multi-user environments.
+
+Tradeoffs: Strict consistency can slow distributed or bulk operations.
+
+High-Value Interview Q&A:
+
+Consistency vs constraints?
+
+Constraints enforce rules; ACID Consistency ensures all rules + business logic remain valid after transaction.
+
+Banking example: Total system balance remains constant after transfers.
+
+3. Isolation
+
+What:
+
+Ensures concurrent transactions do not interfere; results are as if executed sequentially.
+
+Isolation Levels
+
+| Level            | Description                      | Dirty Read | Non-Repeatable Read | Phantom Read | Use / Tradeoff                    |
+| ---------------- | -------------------------------- | ---------- | ------------------- | ------------ | ----------------------------------|
+| Read Uncommitted | Reads uncommitted data           | ✅          | ✅                   | ✅            | Fastest, but risky            |
+| Read Committed   | Reads only committed data        | ❌          | ✅                   | ✅            | Default, safer                |
+| Repeatable Read  | Same row reads consistent        | ❌          | ❌                   | ✅            | Prevents non-repeatable reads |
+| Serializable     | Full isolation; serial execution | ❌          | ❌                   | ❌            | Safest, lowest concurrency    |
+
+Key Idea:
+
+Dirty read → read uncommitted data
+
+Non-repeatable → row changes
+
+Phantom → new/deleted rows appear
+
+Platform Notes:
+
+Databricks / Delta Lake: Optimistic concurrency control
+
+Snowflake: Multi-Version Concurrency Control (MVCC)
+
+Higher isolation → less concurrency, more overhead
+
+High-Value Q&A:
+
+Explain phantom read. → New rows appear in a repeated query.
+
+How does MVCC help? → Each transaction sees a snapshot; prevents dirty/non-repeatable reads.
+
+4. Durability
+
+What:
+
+Committed transactions persist permanently, even after a crash.
+
+How / Platform Notes:
+
+Traditional RDBMS: Write-ahead logs, disk commit
+
+Databricks / Delta Lake: Transaction logs + atomic file operations
+
+Snowflake: Persistent cloud storage + automatic replication
+
+When: Always; ensures reliability.
+
+Tradeoffs: Slight commit latency; storage overhead for logs.
+
+High-Value Q&A:
+
+How is durability ensured in cloud platforms?
+
+Delta Lake: transaction logs + replicated storage
+
+Snowflake: cloud storage with replication/failover
+
+| Property    | Key Idea                     | Platform Notes                                                 |
+| ----------- | ---------------------------- | -------------------------------------------------------------- |
+| Atomicity   | All or nothing               | RDBMS: rollback; Delta: MERGE; Snowflake: transactional commit |
+| Consistency | Database rules always valid  | Constraints + business logic                                   |
+| Isolation   | Concurrent transactions safe | MVCC / OCC; know isolation levels & anomalies                  |
+| Durability  | Committed data persists      | Logs, atomic ops, replication                                  |
+| Property    | Key Idea                     | Platform Notes                                                 |
+| ----------- | ---------------------------- | -------------------------------------------------------------- |
+| Atomicity   | All or nothing               | RDBMS: rollback; Delta: MERGE; Snowflake: transactional commit |
+| Consistency | Database rules always valid  | Constraints + business logic                                   |
+| Isolation   | Concurrent transactions safe | MVCC / OCC; know isolation levels & anomalies                  |
+| Durability  | Committed data persists      | Logs, atomic ops, replication                                  |
+
 
 
