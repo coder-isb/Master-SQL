@@ -14,7 +14,7 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
    - [Q&A](#query-type-q&a)
 2. [Data Types](#sql-key-data-types)
 3. [SQL IMP Objects](#sql-other-imp-objects)
-4. [SQL KEYS](#keys-sql)
+4. [SQL KEYS](#keys-in-sql)
 5. [SQL KEYS CLOUD](#keys-databricks-&-snowflake)
 2. [SQL Joins](#sql-joins)
 3. [Advanced Queries](#advanced-queries)
