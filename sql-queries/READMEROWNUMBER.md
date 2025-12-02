@@ -7,6 +7,7 @@
 ---
 
 ## Q1: Remove duplicate customers, keep earliest signup (Amazon)
+```sql
 WITH c AS (
 SELECT *,
 ROW_NUMBER() OVER(PARTITION BY email ORDER BY signup_date) AS rn
