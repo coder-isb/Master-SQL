@@ -546,3 +546,150 @@ WITH c AS (
 SELECT *
 FROM c
 WHERE rn = 1;
+Section 6 — Hard FAANG Questions
+Q51: Detect overlapping bookings per host, return first overlap (Airbnb)
+WITH t AS (
+    SELECT *,
+           LAG(end_date) OVER(PARTITION BY host_id ORDER BY start_date) AS prev_end
+    FROM bookings
+),
+o AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY host_id ORDER BY start_date) AS rn
+    FROM t
+    WHERE start_date < prev_end
+)
+SELECT *
+FROM o
+WHERE rn = 1;
+
+Q52: First fraudulent transaction per user (Stripe)
+WITH f AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY timestamp) AS rn
+    FROM transactions
+    WHERE is_fraud = 1
+)
+SELECT *
+FROM f
+WHERE rn = 1;
+
+Q53: Detect first time a stock hits a new all-time high (Bloomberg, Google)
+WITH h AS (
+    SELECT *,
+           MAX(price) OVER(ORDER BY date) AS running_max
+    FROM stocks
+),
+a AS (
+    SELECT *,
+           ROW_NUMBER() OVER(ORDER BY date) AS rn
+    FROM h
+    WHERE price = running_max
+)
+SELECT *
+FROM a
+WHERE rn = 1;
+
+Q54: Identify the 3 most recent promotions per employee (Workday)
+WITH p AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY emp_id ORDER BY promotion_date DESC) AS rn
+    FROM promotions
+)
+SELECT *
+FROM p
+WHERE rn <= 3;
+
+Q55: Detect daily anomalies where traffic increased > 200% (Cloudflare)
+WITH t AS (
+    SELECT *,
+           LAG(traffic) OVER(ORDER BY day) AS prev
+    FROM traffic
+)
+SELECT *
+FROM t
+WHERE traffic > prev * 2;
+
+Q56: Identify product with greatest day-over-day price increase per category (Amazon Pricing)
+WITH t AS (
+    SELECT *,
+           price - LAG(price) OVER(PARTITION BY category ORDER BY date) AS diff
+    FROM product_price
+),
+r AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY category ORDER BY diff DESC) AS rn
+    FROM t
+)
+SELECT *
+FROM r
+WHERE rn = 1;
+
+Q57: Detect first repeating user behavior pattern (Meta ML)
+WITH t AS (
+    SELECT user_id,
+           event_day,
+           activity,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY event_day) AS rn
+    FROM activity_log
+)
+SELECT a.user_id, a.activity, a.event_day
+FROM t a
+JOIN t b
+  ON a.user_id = b.user_id
+ AND a.activity = b.activity
+ AND a.rn = b.rn + 1;
+
+Q58: Identify users who returned within 7 days after first visit (Google Ads)
+WITH v AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY visit_date) AS rn
+    FROM visits
+),
+first_visit AS (
+    SELECT user_id, visit_date
+    FROM v
+    WHERE rn = 1
+),
+next_visit AS (
+    SELECT user_id, visit_date,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY visit_date) AS rn2
+    FROM visits
+)
+SELECT fv.user_id
+FROM first_visit fv
+JOIN next_visit nv
+  ON fv.user_id = nv.user_id
+ AND nv.rn2 = 2
+WHERE nv.visit_date <= fv.visit_date + INTERVAL '7 days';
+
+Q59: First cart add after viewing a product (Amazon Retail)
+WITH v AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id, product_id ORDER BY event_time) AS rn
+    FROM events
+    WHERE event = 'view'
+),
+a AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id, product_id ORDER BY event_time) AS rn2
+    FROM events
+    WHERE event = 'add_to_cart'
+)
+SELECT a.*
+FROM v
+JOIN a
+  ON v.user_id = a.user_id
+ AND v.product_id = a.product_id
+WHERE a.rn2 = 1;
+
+Q60: Identify employees who got demoted (compare first and last ranking) (Netflix)
+WITH r AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY review_year) AS rn1,
+           ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY review_year DESC) AS rn2
+    FROM performance
+)
+SELECT employee_id
+FROM r
+WHERE rn1 = 1 AND rn2 = 1 AND last_rating < first_rating;
