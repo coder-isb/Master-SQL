@@ -22,7 +22,7 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
 5. [ACID properties](#acid-properties)
 6. [Database Design Tips](#database-design-tips)
 7. [SQL Best Practices](#sql-best-practices)
-8. [SQL INTERVIEW](sql-queries/README_SQL.md)
+8. [SQL INTERVIEW](sql-queries/READMESQL.md)
 
 ---
 
