@@ -386,3 +386,163 @@ WITH f AS (
 SELECT *
 FROM f
 WHERE rn = 1;
+
+Section 4 — Ranking Problems
+Q31: Rank employees by salary per department (Microsoft)
+SELECT *,
+       ROW_NUMBER() OVER(PARTITION BY department ORDER BY salary DESC) AS rn
+FROM employees;
+
+Q32: Rank customers by their lifetime value (Amazon Prime)
+SELECT customer_id,
+       SUM(amount) AS total_spend,
+       ROW_NUMBER() OVER(ORDER BY SUM(amount) DESC) AS rn
+FROM orders
+GROUP BY customer_id;
+
+Q33: Rank stocks by weekly return (Google Finance)
+SELECT *,
+       ROW_NUMBER() OVER(ORDER BY weekly_return DESC) AS rn
+FROM stock_returns;
+
+Q34: Rank users by activity score per country (Meta)
+SELECT *,
+       ROW_NUMBER() OVER(PARTITION BY country ORDER BY score DESC) AS rn
+FROM user_scores;
+
+Q35: Rank athletes by performance per event (Olympics)
+SELECT *,
+       ROW_NUMBER() OVER(PARTITION BY event ORDER BY result DESC) AS rn
+FROM performance;
+
+Q36: Rank items by popularity per category (Pinterest)
+SELECT *,
+       ROW_NUMBER() OVER(PARTITION BY category ORDER BY popularity DESC) AS rn
+FROM items;
+
+Q37: Rank cities by pollution index (Google Earth)
+SELECT *,
+       ROW_NUMBER() OVER(ORDER BY pollution DESC) AS rn
+FROM pollution_stats;
+
+Q38: Rank videos by watch time per creator (YouTube)
+SELECT *,
+       ROW_NUMBER() OVER(PARTITION BY creator_id ORDER BY watch_time DESC) AS rn
+FROM videos;
+
+Q39: Rank employees by tenure (Workday)
+SELECT *,
+       ROW_NUMBER() OVER(ORDER BY hire_date) AS rn
+FROM employees;
+
+Q40: Rank articles by number of shares (LinkedIn)
+SELECT *,
+       ROW_NUMBER() OVER(ORDER BY shares DESC) AS rn
+FROM articles;
+
+Section 5 — Product / Behavior Analytics
+Q41: Identify users with 7-day login streak (Meta)
+WITH t AS (
+    SELECT user_id,
+           login_date,
+           login_date - ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY login_date) AS grp
+    FROM logins
+)
+SELECT user_id
+FROM t
+GROUP BY user_id, grp
+HAVING COUNT(*) >= 7;
+
+Q42: Find the first search after opening the app (Google)
+WITH a AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id, session_id ORDER BY timestamp) AS rn
+    FROM events
+    WHERE event_type = 'search'
+)
+SELECT *
+FROM a
+WHERE rn = 1;
+
+Q43: Detect first subscription cancellation per user (Spotify)
+WITH c AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY cancel_date) AS rn
+    FROM cancellations
+)
+SELECT *
+FROM c
+WHERE rn = 1;
+
+Q44: Find user's first watched movie in each year (Netflix)
+WITH w AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id, EXTRACT(YEAR FROM watch_date) ORDER BY watch_date) AS rn
+    FROM watch_history
+)
+SELECT *
+FROM w
+WHERE rn = 1;
+
+Q45: Get each shopper’s first cart abandon event (Amazon)
+WITH a AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY event_time) AS rn
+    FROM events
+    WHERE event_type = 'cart_abandon'
+)
+SELECT *
+FROM a
+WHERE rn = 1;
+
+Q46: Detect first unusual spike in search volume per user (Google Search)
+WITH s AS (
+    SELECT *,
+           LAG(queries) OVER(PARTITION BY user_id ORDER BY day) AS prev,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY day) AS rn
+    FROM search_activity
+)
+SELECT *
+FROM s
+WHERE queries > prev * 2
+  AND rn = 1;
+
+Q47: Identify first time a user changed device (Apple iCloud)
+WITH d AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY event_time) AS rn
+    FROM device_changes
+)
+SELECT *
+FROM d
+WHERE rn = 1;
+
+Q48: Detect the first rage-click event per user (UX Analytics)
+WITH r AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY click_time) AS rn
+    FROM rage_clicks
+)
+SELECT *
+FROM r
+WHERE rn = 1;
+
+Q49: First subscription upgrade per user (Amazon Prime)
+WITH u AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY upgrade_time) AS rn
+    FROM upgrades
+)
+SELECT *
+FROM u
+WHERE rn = 1;
+
+Q50: First driver cancellation per trip (Uber)
+WITH c AS (
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY trip_id ORDER BY cancel_time) AS rn
+    FROM cancellations
+)
+SELECT *
+FROM c
+WHERE rn = 1;
