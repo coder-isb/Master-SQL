@@ -13,19 +13,15 @@ A comprehensive SQL cheat sheet for developers, DBAs, and architects. Includes q
    - [TCL – Transaction Control Language](#4-tcl---transaction-control-language)
    - [Q&A](#query-type-q&a)
 2. [Data Types](#sql-key-data-types)
-3. [SQL IMP Objects](#sql-other-imp-objects)
-4. [SQL KEYS](#keys-in-sql)
-5. [SQL KEYS Databricks Snowflake](#keys-databricks-&-snowflake)
+3. [SQL Functions/Procedures/Triggers](#sql-other-imp-objects)
+4. [SQL Keys](#keys-in-sql)
+5. [SQL Keys Databricks Snowflake](#keys-databricks-&-snowflake)
 2. [SQL Joins](#sql-joins)
 3. [Advanced Queries](#advanced-queries)
-   - [CTE – Common Table Expressions](#cte--common-table-expressions)
-   - [Recursive CTE](#recursive-cte)
-   - [Window Functions](#window-functions)
-   - [Pivot / Unpivot](#pivot--unpivot)
 4. [Indexing & Optimization](#indexing--optimization)
-5. 
+5. [ACID properties](#acid-properties)
 6. [Database Design Tips](#database-design-tips)
-7. [Best Practices](#best-practices)
+7. [SQL Best Practices](#sql-best-practices)
 
 ---
 
@@ -1177,7 +1173,167 @@ Snowflake: cloud storage with replication/failover
 | Isolation   | Concurrent transactions safe | MVCC / OCC; know isolation levels & anomalies                  |
 | Durability  | Committed data persists      | Logs, atomic ops, replication                                  |
 
-                                |
+## SQL Best Practices
+
+SQL Best Practices – Extended
+1. SQL Writing Best Practices
+
+Key Guidelines:
+
+**Avoid SELECT *** → fetch only needed columns
+
+Use aliases for readability (emp e instead of employees)
+
+Avoid unnecessary subqueries → prefer JOINs or CTEs
+
+Use CTEs for complex queries → improves readability and maintainability
+
+Use parameterized queries → prevents SQL injection
+
+Avoid functions on indexed columns → e.g., WHERE YEAR(date) = 2025 → use range filter
+
+Common Pitfalls:
+
+SELECT * → performance issues
+
+Functions in WHERE → prevents index usage
+
+Multiple nested subqueries → slow execution
+
+High-Value Interview Q&A:
+
+*Why avoid SELECT ?
+
+Reduces I/O, improves query performance, fetches only needed data.
+
+CTE vs Temp Table?
+
+CTE is recomputed; temp table persists and can be indexed for repeated use.
+
+2. Joins – Best Practices
+
+Key Guidelines:
+
+Prefer INNER JOIN unless outer join is required
+
+Use ON conditions correctly; avoid Cartesian products
+
+For large tables: consider broadcast join (Databricks) or small dimension table
+
+Use EXISTS instead of IN for large subqueries
+
+Common Pitfalls:
+
+Forgetting join condition → Cartesian product
+
+Joining large tables without proper filtering → slow queries
+
+Using functions on join columns → prevents index usage
+
+High-Value Interview Q&A:
+
+Difference between INNER, LEFT, RIGHT, FULL OUTER JOIN?
+
+INNER: only matching rows
+
+LEFT/RIGHT: keep all from left/right, match if exists
+
+FULL: keep all from both, NULL if no match
+
+How to optimize join on large tables?
+
+Filter before join, use appropriate join type, consider partitioning/clustering.
+
+3. GROUP BY / Aggregation Best Practices
+
+Key Guidelines:
+
+Aggregate only required columns
+
+Avoid GROUP BY on high-cardinality columns unless necessary
+
+Use HAVING for post-aggregation filtering, WHERE for pre-aggregation filtering
+
+Use window functions if aggregation per group is needed without collapsing rows
+
+Common Pitfalls:
+
+GROUP BY on functions → slow, prevents index usage
+
+HAVING instead of WHERE → filters applied after aggregation
+
+High-Value Interview Q&A:
+
+Difference between WHERE and HAVING?
+
+WHERE → filter before aggregation
+
+HAVING → filter after aggregation
+
+When to use window functions vs GROUP BY?
+
+Window: keep row-level data while calculating aggregates
+
+GROUP BY: collapses rows into aggregated result
+
+4. Debugging Slow Queries
+
+Key Steps:
+
+Check execution plan (EXPLAIN / DESCRIBE)
+
+Identify table scans, missing indexes, or expensive joins
+
+Look for unnecessary full table scans
+
+Check joins
+
+Ensure small table broadcasted in distributed systems
+
+Filter before join
+
+Check indexes
+
+Missing or non-optimal indexes cause scans
+
+Check aggregations
+
+GROUP BY on high-cardinality columns → slow
+
+Use pre-aggregated tables if possible
+
+Check large IN / OR conditions → consider JOIN or EXISTS
+
+Platform-Specific Tips:
+
+Databricks:
+
+Use OPTIMIZE, Z-ORDER, cache intermediate results
+
+Avoid shuffling large tables unnecessarily
+
+Snowflake:
+
+Check micro-partitioning, clustering keys
+
+Use materialized views for repeated heavy queries
+
+High-Value Interview Q&A:
+
+How do you find slow queries in a production DB?
+
+Use EXPLAIN, execution stats, query profiling, logs.
+
+How to optimize large table JOIN in Databricks?
+
+Broadcast small table, filter before join, cache intermediate result.
+
+Why is GROUP BY slow on large dataset?
+
+High-cardinality, no partitioning, aggregations require shuffling.
+
+5. Summary – SQL Writing & Performance Tips
+Area	Best Practices	Common Pitfalls
 
 
 
