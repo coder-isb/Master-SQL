@@ -87,7 +87,7 @@ SELECT *
 FROM c
 WHERE rn = 1;
 
-``
+```sql
 Q2: Deduplicate product catalog, keeping cheapest version (Walmart, Amazon Retail)
 WITH p AS (
     SELECT *,
@@ -98,7 +98,7 @@ SELECT *
 FROM p
 WHERE rn = 1;
 
-```
+```sql
 Q3: Deduplicate payment attempts, keep most recent success (Stripe, PayPal)
 WITH t AS (
     SELECT *,
