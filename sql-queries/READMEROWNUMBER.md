@@ -87,8 +87,9 @@ SELECT *
 FROM c
 WHERE rn = 1;
 
+```
+## Q2: Deduplicate product catalog, keeping cheapest version (Walmart, Amazon Retail)
 ```sql
-Q2: Deduplicate product catalog, keeping cheapest version (Walmart, Amazon Retail)
 WITH p AS (
     SELECT *,
            ROW_NUMBER() OVER(PARTITION BY product_name ORDER BY price) AS rn
@@ -98,8 +99,9 @@ SELECT *
 FROM p
 WHERE rn = 1;
 
+```
+## Q3: Deduplicate payment attempts, keep most recent success (Stripe, PayPal)
 ```sql
-Q3: Deduplicate payment attempts, keep most recent success (Stripe, PayPal)
 WITH t AS (
     SELECT *,
            ROW_NUMBER() OVER(PARTITION BY user_id, payment_method ORDER BY attempt_time DESC) AS rn
@@ -110,7 +112,9 @@ FROM t
 WHERE rn = 1;
 
 ```
-Q4: Deduplicate transactions where same amount appears twice (Uber)
+## Q4: Deduplicate transactions where same amount appears twice (Uber)
+```sql
+
 WITH r AS (
     SELECT *,
            ROW_NUMBER() OVER(PARTITION BY user_id, amount ORDER BY timestamp) AS rn
@@ -121,7 +125,7 @@ FROM r
 WHERE rn = 1;
 
 ```
-Q5: Deduplicate rows in a clickstream log (Meta)
+## Q5: Deduplicate rows in a clickstream log (Meta)
 WITH cte AS (
     SELECT *,
            ROW_NUMBER() OVER(PARTITION BY user_id, event_timestamp ORDER BY event_id) AS rn
