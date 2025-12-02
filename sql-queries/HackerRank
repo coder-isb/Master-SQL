@@ -170,3 +170,140 @@ SELECT salary*months, COUNT(*)
 FROM employee 
 WHERE salary*months=(SELECT MAX(salary*months) FROM employee)
 GROUP BY salary*months;
+
+21. Round LAT_N in STATION
+SELECT ROUND(SUM(LAT_N),4)
+FROM STATION
+WHERE LAT_N > 38.7880 AND LAT_N < 137.2345;
+
+22. Manhattan Distance
+SELECT ROUND(
+    ABS(MIN(LAT_N) - MAX(LAT_N)) + ABS(MIN(LONG_W) - MAX(LONG_W)),
+    4
+) AS manhattan_distance
+FROM STATION;
+
+23. Euclidean Distance
+SELECT ROUND(
+    SQRT(POWER(MAX(LAT_N)-MIN(LAT_N),2) + POWER(MAX(LONG_W)-MIN(LONG_W),2)),
+    4
+) AS euclidean_distance
+FROM STATION;
+
+24. Asian Population JOIN
+SELECT SUM(city.population)
+FROM country
+LEFT JOIN city ON country.code = city.countrycode
+WHERE country.continent = 'Asia';
+
+25. African Cities JOIN
+SELECT city.name
+FROM city
+JOIN country ON city.countrycode = country.code
+WHERE country.continent = 'Africa';
+
+26. Average population per continent
+SELECT country.continent, FLOOR(AVG(city.population))
+FROM country
+INNER JOIN city ON city.countrycode = country.code
+GROUP BY country.continent;
+
+27. Student Report
+SELECT CASE
+         WHEN G.grade > 7 THEN S.name
+         ELSE NULL
+       END AS names,
+       G.grade,
+       S.marks
+FROM students S
+JOIN grades G ON S.marks BETWEEN G.min_mark AND G.max_mark
+ORDER BY G.grade DESC, names ASC, S.marks ASC;
+
+
+Alternate:
+
+SELECT IF(GRADE < 8, NULL, NAME), GRADE, MARKS
+FROM STUDENTS 
+JOIN GRADES ON MARKS BETWEEN MIN_MARK AND MAX_MARK
+ORDER BY GRADE DESC, NAME;
+
+28. Top Competitors
+SELECT H.hacker_id, H.name
+FROM submissions S
+JOIN challenges C ON S.challenge_id = C.challenge_id
+JOIN difficulty D ON C.difficulty_level = D.difficulty_level
+JOIN hackers H ON S.hacker_id = H.hacker_id
+    AND S.score = D.score
+GROUP BY H.hacker_id, H.name
+HAVING COUNT(S.hacker_id) > 1
+ORDER BY COUNT(S.hacker_id) DESC, S.hacker_id ASC;
+
+29. Challenges
+SELECT H.hacker_id, H.name, COUNT(C.challenge_id) AS total_count
+FROM Hackers H
+JOIN Challenges C ON H.hacker_id = C.hacker_id
+GROUP BY H.hacker_id, H.name
+HAVING total_count = (
+    SELECT COUNT(temp1.challenge_id) AS max_count
+    FROM challenges temp1
+    GROUP BY temp1.hacker_id
+    ORDER BY max_count DESC
+    LIMIT 1
+)
+OR total_count IN (
+    SELECT DISTINCT other_counts FROM (
+        SELECT H2.hacker_id, H2.name, COUNT(C2.challenge_id) AS other_counts
+        FROM Hackers H2
+        JOIN Challenges C2 ON H2.hacker_id = C2.hacker_id
+        GROUP BY H2.hacker_id, H2.name
+    ) temp2
+    GROUP BY other_counts
+    HAVING COUNT(other_counts) = 1
+)
+ORDER BY total_count DESC, H.hacker_id;
+
+30. Contest Leaderboard
+SELECT h.hacker_id, h.name, SUM(MAX_SCORE.t1) AS total_score
+FROM Hackers h
+INNER JOIN (
+    SELECT MAX(s.score) AS t1, s.hacker_id
+    FROM Submissions s
+    GROUP BY s.challenge_id, s.hacker_id
+    HAVING t1 > 0
+) AS MAX_SCORE
+ON h.hacker_id = MAX_SCORE.hacker_id
+GROUP BY h.hacker_id, h.name
+ORDER BY total_score DESC, hacker_id ASC;
+
+31. SQL Project Planning
+SELECT s.Proj_Start_Date, MIN(e.Proj_End_Date) AS Real_Proj_End_Date
+FROM (
+    SELECT Start_Date AS Proj_Start_Date FROM Projects
+    WHERE Start_Date NOT IN (SELECT End_Date FROM Projects)
+) s,
+(
+    SELECT End_Date AS Proj_End_Date FROM Projects
+    WHERE End_Date NOT IN (SELECT Start_Date FROM Projects)
+) e
+WHERE s.Proj_Start_Date < e.Proj_End_Date
+GROUP BY s.Proj_Start_Date
+ORDER BY DATEDIFF(MIN(e.Proj_End_Date), s.Proj_Start_Date) ASC, s.Proj_Start_Date ASC;
+
+32. Symmetric Pairs
+SELECT f1.x, f1.y
+FROM functions f1
+JOIN functions f2
+ON f1.x = f2.y AND f1.y = f2.x
+WHERE f1.x != f1.y AND f1.x < f1.y
+UNION
+SELECT x, y
+FROM functions
+WHERE x = y
+GROUP BY x, y
+HAVING COUNT(1) > 1
+ORDER BY x ASC;
+
+33. Print *
+SET @TEMP := 21;
+SELECT REPEAT('* ', @TEMP := @TEMP - 1)
+FROM INFORMATION_SCHEMA.TABLES;
